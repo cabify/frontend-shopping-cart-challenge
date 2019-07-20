@@ -1,0 +1,23 @@
+{
+  "name": "frontend-shopping-cart-challenge",
+  "version": "1.0.0",
+  "description": "**Besides providing exceptional transportation services, Cabify also runs a physical store which sells (only) 3 products:**",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cabify/frontend-shopping-cart-challenge.git"
+  },
+  "author": "Leonardo Lewandowski <leolewan@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cabify/frontend-shopping-cart-challenge/issues"
+  },
+  "homepage": "https://github.com/cabify/frontend-shopping-cart-challenge#readme",
+  "devDependencies": {
+    "chai": "4.2.0",
+    "mocha": "6.2.0"
+  }
+}
