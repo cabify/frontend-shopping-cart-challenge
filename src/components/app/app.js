@@ -1,11 +1,19 @@
 import React, { Component } from "react";
 import ReactDOM from "react-dom";
-import ShoppingCart from "./shopping-cart";
-import OrderSummary from "./order-summary";
-import products from '../../data/products';
-import discounts from '../../data/discounts';
-import Checkout from '../business/checkout';
+import ShoppingCart from "../shoppingCart/shopping-cart";
+import OrderSummary from "../orderSummary/order-summary";
+import products from '../../../data/products';
+import discounts from '../../../data/discounts';
+import Checkout from '../../business/checkout';
+import './app.scss';
 
+/* 
+  I'm harcoding products and discounts 
+  because I think there should be an endpoint 
+  on backend somewhere to serve them.
+  Besides, its not good to have 
+  business logic on the frontend
+*/  
 class App extends Component {
   constructor() {
     super();

@@ -1,5 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
+import './order-summary.scss';
 
 const OrderSummary = (props) => {
 	return (

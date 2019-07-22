@@ -1,0 +1,91 @@
+.products {
+  padding: 40px 32px 40px 56px;
+}
+
+.products button.count {
+  padding: 0 8px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  color: #7350ff;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.products {
+  flex: 1;
+}
+
+.products-list {
+  position: relative;
+  width: 100%;
+}
+
+.product-image {
+  display: flex;
+  align-items: center;
+  flex-flow: row nowrap;
+}
+
+.product-image img {
+  margin-right: 16px;
+  width: 72px;
+  height: 72px;
+  border: 1px solid #cacad1;
+  border-radius: 4px;
+}
+
+.product-code {
+  border-radius: 4px;
+  color: #a6a7b3;
+  letter-spacing: 0.13px;
+  font-weight: 400;
+}
+
+.product-quantity {
+  width: 40px;
+  height: 40px;
+  border: 2px solid #dbdbe0;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.product-price {
+  color: #000000;
+  font-size: 16px;
+}
+
+.product .clear {
+  border: none;
+  background: transparent;
+}
+
+.product .clear span {
+  position: relative;
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+
+.product .clear span:before,
+.product .clear span:after {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 2px;
+  display: block;
+  width: 12px;
+  height: 2px;
+  border-radius: 8px;
+  background-color: #a6a7b3;
+  transform: rotate(-45deg);
+  transform-origin: center center;
+}
+
+.product .clear span:before {
+  transform: rotate(45deg);
+}
+
+.product h1 {
+  color: #7350ff;
+}

@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
+import './shopping-cart.scss';
 
 const ShoppingCart = (props) => {
   const handleOnSubmit = (fn) => { 
