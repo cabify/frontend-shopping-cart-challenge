@@ -1,138 +1,76 @@
 import React, { Component } from "react";
 import ReactDOM from "react-dom";
+import ShoppingCart from "./shopping-cart";
+import OrderSummary from "./order-summary";
+import products from '../../data/products';
+import discounts from '../../data/discounts';
+import Checkout from '../business/checkout';
 
 class App extends Component {
   constructor() {
     super();
+    this.pricingRules = this.formatPricingRules();
+    this.co = new Checkout(this.pricingRules);
+    
+    this.addScan = this.addScan.bind(this);
+    this.removeScan = this.removeScan.bind(this);
+    this.formatPricingRules = this.formatPricingRules.bind(this);
+    this.extendProducts = this.extendProducts.bind(this);
+    this.extendDiscounts = this.extendDiscounts.bind(this);
+    this.updateScans = this.updateScans.bind(this);
+
     this.state = {
-      title: ""
+      scans: this.co.getScans(),
     };
+  }
+  extendProducts() {
+    return products.map(product => {
+      const scan = this.state.scans.find(scan => scan.code === product.code);
+      const qty = (scan && scan.qty) || 0;
+      const total = (scan && scan.total) || 0;
+      return { qty, total, ...product };
+    });
+  }
+  extendDiscounts() {
+    return discounts.map(discount => {
+      const scan = this.co.calculate().getOffers().find(offer => offer.discountId === discount.id);
+      const totalDiscount = (scan && scan.totalDiscount) || 0;
+      return { totalDiscount, ...discount };
+    });
+  }
+  formatPricingRules() {
+    return products.map(({ code, price }) => {
+      const offer = discounts.find(d => d.code === code); 
+      return { code, offer, price: price.amount };  
+    });
+  }
+  updateScans() {
+    this.setState({
+      scans: this.co.getScans(),
+    });
+  }
+  addScan(code) {
+    this.co.scan(code);
+    this.updateScans();
+  }
+  removeScan(code) {
+    this.co.remove(code);
+    this.updateScans();
   }
   render() {
     return (
       <main class="App">
-        <section class="products">
-          <h1 class="main">Shopping cart</h1>
-          <ul class="products-list tableHead">
-            <li class="products-list-title row">
-              <div class="col-product">Product details</div>
-              <div class="col-quantity">Quantity</div>
-              <div class="col-price">Price</div>
-              <div class="col-total">Total</div>
-            </li>
-          </ul>
-          <ul class="products-list">
-            <li class="product row">
-              <div class="col-product">
-                <figure class="product-image">
-                  <img src="img/shirt.png" alt="Shirt" />
-                  <div class="product-description">
-                    <h1>Shirt</h1>
-                    <p class="product-code">Product code X7R2OPX</p>
-                  </div>
-                </figure>
-              </div>
-              <div class="col-quantity">
-                <button class="count">-</button
-                ><input type="text" class="product-quantity" value="3" /><button
-                  class="count"
-                >
-                  +
-                </button>
-              </div>
-              <div class="col-price">
-                <span class="product-price">20</span
-                ><span class="product-currency currency">€</span>
-              </div>
-              <div class="col-total">
-                <span class="product-price">60</span
-                ><span class="product-currency currency">€</span>
-              </div>
-            </li>
-            <li class="product row">
-              <div class="col-product">
-                <figure class="product-image">
-                  <img src="img/mug.png" alt="Mug" />
-                  <div class="product-description">
-                    <h1>Mug</h1>
-                    <p class="product-code">Product code X2G2OPZ</p>
-                  </div>
-                </figure>
-              </div>
-              <div class="col-quantity">
-                <button class="count">-</button
-                ><input type="text" class="product-quantity" value="4" /><button
-                  class="count"
-                >
-                  +
-                </button>
-              </div>
-              <div class="col-price">
-                <span class="product-price">5</span
-                ><span class="product-currency currency">€</span>
-              </div>
-              <div class="col-total">
-                <span class="product-price">20</span
-                ><span class="product-currency currency">€</span>
-              </div>
-            </li>
-            <li class="product row">
-              <div class="col-product">
-                <figure class="product-image">
-                  <img src="img/cap.png" alt="Cap" />
-                  <div class="product-description">
-                    <h1>Cap</h1>
-                    <p class="product-code">Product code X3W2OPY</p>
-                  </div>
-                </figure>
-              </div>
-              <div class="col-quantity">
-                <button class="count">-</button
-                ><input type="text" class="product-quantity" value="4" /><button
-                  class="count"
-                >
-                  +
-                </button>
-              </div>
-              <div class="col-price">
-                <span class="product-price">10</span
-                ><span class="product-currency currency">€</span>
-              </div>
-              <div class="col-total">
-                <span class="product-price">40</span
-                ><span class="product-currency currency">€</span>
-              </div>
-            </li>
-          </ul>
-        </section>
-        <aside class="summary">
-          <h1 class="main">Order Summary</h1>
-          <ul class="summary-items wrapper border">
-            <li>
-              <span class="summary-items-number">11 Items</span
-              ><span class="summary-items-price"
-                >120<span class="currency">€</span></span
-              >
-            </li>
-          </ul>
-          <div class="summary-discounts wrapper-half border">
-            <h2>Discounts</h2>
-            <ul>
-              <li><span>2x1 Mug offer</span><span>-10€</span></li>
-              <li><span>x3 Shirt offer</span><span>-3€</span></li>
-              <li><span>Promo code</span><span>0€</span></li>
-            </ul>
-          </div>
-          <div class="summary-total wrapper">
-            <ul>
-              <li>
-                <span class="summary-total-cost">Total cost</span
-                ><span class="summary-total-price">107€</span>
-              </li>
-            </ul>
-            <button type="submit">Checkout</button>
-          </div>
-        </aside>
+        <ShoppingCart 
+          products={this.extendProducts()} 
+          onAdd={this.addScan} 
+          onRemove={this.removeScan} 
+        />
+        <OrderSummary 
+          discounts={this.extendDiscounts()}
+          scanCount={this.co.scanCount()}
+          scanTotal={this.co.scanTotal()}
+          total={this.co.total()}
+        />
       </main>
     );
   }

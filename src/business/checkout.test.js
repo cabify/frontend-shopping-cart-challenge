@@ -1,40 +1,19 @@
 const expect = require('chai').expect;
 const Checkout = require('./checkout');
+const products = require('../../data/products');
+const discounts = require('../../data/discounts');
 
-const pricingRules = [{
-  code: 'CAP',
-  name: 'Cabify Cap',
-  image: 'http://',
-  price: 5,
-  currency: '€',
-  offer: {
-    id: 'twoXone',
-    name: 'Cup offer',
-  }
-}, {
-  code: 'TSHIRT',
-  name: 'Cabify T-Shirt',
-  image: 'http://',
-  price: 20,
-  currency: '€',
-  offer: {
-    id: 'bulk',
-    name: 'Shirt Offer',
-  }
-},{
-  code: 'MUG',
-  name: 'Cafify Coffee Mug',
-  image: 'http://',
-  price: 7.5,
-  currency: '€',
-  offer: {
-    id: null,
-  }
-}];
+const setup = () => {
+  const pricingRules = products.map((product) => {
+    const offer = discounts.find(discount => discount.code === product.code); 
+    return { code: product.code, price: product.price.amount, offer }
+  });
+  return new Checkout(pricingRules);
+}
 
 describe('Checkout', function() {
   it('should expose some methods', function() {
-    const checkout = new Checkout(pricingRules);
+    const checkout = setup();
     expect(checkout.scan).to.be.a('function');
     expect(checkout.total).to.be.a('function');
     expect(checkout.getScans).to.be.a('function');
@@ -42,42 +21,65 @@ describe('Checkout', function() {
 
   describe('should test #scan', () => {
     it('should scan two products', () => {
-      const checkout = new Checkout(pricingRules);
+      const checkout = setup();
       const actual = checkout.scan('PRODUCT_A').scan('PRODUCT_B');
       expect(actual.scanItems).to.deep.equals([{code: 'PRODUCT_A', qty: 1 }, {code: 'PRODUCT_B', qty: 1 }]);
     }); 
 
     it('should scan three products | two of them are the same', () => {
-      const checkout = new Checkout(pricingRules);
+      const checkout = setup();
       const actual = checkout.scan('PRODUCT_A').scan('PRODUCT_A').scan('PRODUCT_B');
       expect(actual.scanItems).to.deep.equals([{code: 'PRODUCT_A', qty: 2 }, {code: 'PRODUCT_B', qty: 1 }]);
     });  
 
     it('should scan three different products', () => {
-      const checkout = new Checkout(pricingRules);
+      const checkout = setup();
       const actual = checkout.scan('PRODUCT_A').scan('PRODUCT_B').scan('PRODUCT_C');
       expect(actual.scanItems).to.deep.equals([{code: 'PRODUCT_A', qty: 1 }, {code: 'PRODUCT_B', qty: 1 }, {code: 'PRODUCT_C', qty: 1 }]);
     });  
   });
 
+  describe('should test #remove', () => {
+    it('should scan three TSHIRT and remove one', () => {
+      const checkout = setup();
+      const actual = checkout.scan('TSHIRT').scan('TSHIRT').scan('TSHIRT').remove('TSHIRT')
+      expect(actual.getScans()[0].qty).to.equals(2);
+    }); 
+    it('should do nothing when tryng to remove a product that wasnt scan', () => {
+      const checkout = setup();
+      const actual = checkout.scan('CAP').remove('CAP').remove('CAP').scan('TSHIRT').remove('TSHIRT')
+      const expected =  [ { total: 0, price: 5, code: 'CAP', qty: 0 },
+        { total: 0, price: 20, code: 'TSHIRT', qty: 0 } ];
+      expect(actual.getScans()).to.deep.equals(expected);
+    }); 
+    it('should scan two CAP and remove one', () => {
+      const checkout = setup();
+      const actual = checkout.scan('CAP').scan('CAP').scan('TSHIRT').scan('TSHIRT').remove('CAP');
+
+      const expected = [ { total: 5, price: 5, code: 'CAP', qty: 1 },
+        { total: 40, price: 20, code: 'TSHIRT', qty: 2 } ];
+      expect(actual.getScans()).to.deep.equals(expected);
+    }); 
+  });
+
   describe('should test #total', () => {
     it('should test bulk offer', () => {
-      const checkout = new Checkout(pricingRules);
+      const checkout = setup();
       checkout.scan('TSHIRT').scan('TSHIRT').scan('TSHIRT');
       expect(checkout.total()).equal(57);  
     });
     it('should test twoXone offer | two items', () => {
-      const checkout = new Checkout(pricingRules);
+      const checkout = setup();
       checkout.scan('CAP').scan('CAP');
       expect(checkout.total()).equal(5);  
     });
     it('should test twoXone offer | three items', () => {
-      const checkout = new Checkout(pricingRules);
+      const checkout = setup();
       checkout.scan('CAP').scan('CAP').scan('CAP');
       expect(checkout.total()).equal(10);  
     });
     it('should test total', () => {
-      const checkout = new Checkout(pricingRules);
+      const checkout = setup();
       checkout
         .scan('CAP')
         .scan('CAP')
@@ -96,7 +98,7 @@ describe('Checkout', function() {
       expect(checkout.total()).equal(97);  
     });
     it('should applied two offers', () => {
-      const checkout = new Checkout(pricingRules);
+      const checkout = setup();
       checkout
         .scan('CAP')
         .scan('CAP')
@@ -116,7 +118,7 @@ describe('Checkout', function() {
     });
 
     it('should test scanItems', () => {
-      const checkout = new Checkout(pricingRules);
+      const checkout = setup();
       checkout
         .scan('CAP')
         .scan('CAP')
